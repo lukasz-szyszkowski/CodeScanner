@@ -33,7 +33,7 @@ extension CodeScannerView {
 
         public init(showViewfinder: Bool = false, parentView: CodeScannerView) {
             self.parentView = parentView
-            self.showViewfinder = showViewfinder
+            self.showViewfinder = true
             super.init(nibName: nil, bundle: nil)
         }
 
@@ -148,7 +148,7 @@ extension CodeScannerView {
         let fallbackVideoCaptureDevice = AVCaptureDevice.default(for: .video)
 
         private lazy var viewFinder: UIImageView? = {
-            guard let image = UIImage(named: "viewfinder", in: .module, with: nil) else {
+            guard let image = UIImage(named: "viewfinder-wide", in: .module, with: nil) else {
                 return nil
             }
 
@@ -179,6 +179,11 @@ extension CodeScannerView {
 
         override public func viewDidLoad() {
             super.viewDidLoad()
+            NotificationCenter.default.addObserver(
+                self,
+                selector: #selector(avCaptureInputPortFormatDescriptionDidChangeNotification),
+                name:NSNotification.Name.AVCaptureInputPortFormatDescriptionDidChange, object: nil
+            )
             self.addOrientationDidChangeObserver()
             self.setBackgroundColor()
             self.handleCameraPermission()
@@ -186,6 +191,28 @@ extension CodeScannerView {
 
         override public func viewWillLayoutSubviews() {
             previewLayer?.frame = view.layer.bounds
+        }
+        
+        public override func viewDidLayoutSubviews() {
+            super.viewDidLayoutSubviews()
+            updateRectOfInterest()
+        }
+        
+        public override func updateViewConstraints() {
+            super.updateViewConstraints()
+            updateRectOfInterest()
+        }
+        
+        @objc
+        func avCaptureInputPortFormatDescriptionDidChangeNotification(notification: NSNotification) {
+            updateRectOfInterest()
+        }
+        
+        private func updateRectOfInterest() {
+            guard let metaDataOutput, let viewFinder else {
+                return
+            }
+            metaDataOutput.rectOfInterest = previewLayer.metadataOutputRectConverted(fromLayerRect: viewFinder.frame)
         }
 
         @objc func updateOrientation() {
@@ -284,6 +311,8 @@ extension CodeScannerView {
             view.backgroundColor = color
         }
       
+        private var metaDataOutput: AVCaptureMetadataOutput?
+        
         private func setupCaptureDevice() {
             captureSession = AVCaptureSession()
 
@@ -306,7 +335,9 @@ extension CodeScannerView {
                 didFail(reason: .badInput)
                 return
             }
+            
             let metadataOutput = AVCaptureMetadataOutput()
+            self.metaDataOutput = metadataOutput
 
             if (captureSession!.canAddOutput(metadataOutput)) {
                 captureSession!.addOutput(metadataOutput)
@@ -325,10 +356,8 @@ extension CodeScannerView {
             view.addSubview(imageView)
 
             NSLayoutConstraint.activate([
-                imageView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+                imageView.topAnchor.constraint(equalTo: view.topAnchor, constant: 80 + 12),
                 imageView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-                imageView.widthAnchor.constraint(equalToConstant: 200),
-                imageView.heightAnchor.constraint(equalToConstant: 200),
             ])
         }
 
