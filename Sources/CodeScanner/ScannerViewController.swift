@@ -328,7 +328,7 @@ public extension CodeScannerView {
                     } else {
                         print("Desired zoom factor is higher than device's maximum zoom.")
                     }
-                    
+                    videoCaptureDevice.unlockForConfiguration()
                 } catch {
                     print(error)
                 }
