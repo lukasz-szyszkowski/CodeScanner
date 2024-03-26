@@ -583,6 +583,6 @@ extension CodeScannerView.ScannerViewController: AVCapturePhotoCaptureDelegate {
 public extension AVCaptureDevice {
     /// This returns the Ultra Wide Camera on capable devices and the default Camera for Video otherwise.
     static var bestForVideo: AVCaptureDevice? {
-        AVCaptureDevice.default(for: .video).zo
+        AVCaptureDevice.default(for: .video)
     }
 }
