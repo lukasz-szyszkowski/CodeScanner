@@ -320,18 +320,6 @@ public extension CodeScannerView {
                 guard let videoCaptureDevice = parentView.videoCaptureDevice ?? fallbackVideoCaptureDevice else {
                     return
                 }
-
-                do {
-                    try videoCaptureDevice.lockForConfiguration()
-                    if zoomFactor <= videoCaptureDevice.activeFormat.videoMaxZoomFactor {
-                        videoCaptureDevice.videoZoomFactor = zoomFactor
-                    } else {
-                        print("Desired zoom factor is higher than device's maximum zoom.")
-                    }
-                    videoCaptureDevice.unlockForConfiguration()
-                } catch {
-                    print(error)
-                }
                 
                 let videoInput: AVCaptureDeviceInput
 
@@ -360,6 +348,18 @@ public extension CodeScannerView {
                 } else {
                     didFail(reason: .badOutput)
                     return
+                }
+                
+                do {
+                    try videoCaptureDevice.lockForConfiguration()
+                    if zoomFactor <= videoCaptureDevice.activeFormat.videoMaxZoomFactor {
+                        videoCaptureDevice.videoZoomFactor = zoomFactor
+                    } else {
+                        print("Desired zoom factor is higher than device's maximum zoom.")
+                    }
+                    videoCaptureDevice.unlockForConfiguration()
+                } catch {
+                    print(error)
                 }
             }
 
