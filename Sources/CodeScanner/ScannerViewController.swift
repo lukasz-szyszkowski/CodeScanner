@@ -395,6 +395,12 @@ public extension CodeScannerView {
 
                 do {
                     try device.lockForConfiguration()
+                    let zoomFactor: CGFloat = 2.0
+                    if zoomFactor <= captureDevice.activeFormat.videoMaxZoomFactor {
+                        captureDevice.videoZoomFactor = zoomFactor
+                    } else {
+                        print("[CodeScanner] Desired zoom factor is higher than device's maximum zoom.")
+                    }
                 } catch {
                     return
                 }
@@ -577,6 +583,6 @@ extension CodeScannerView.ScannerViewController: AVCapturePhotoCaptureDelegate {
 public extension AVCaptureDevice {
     /// This returns the Ultra Wide Camera on capable devices and the default Camera for Video otherwise.
     static var bestForVideo: AVCaptureDevice? {
-        AVCaptureDevice.default(for: .video)
+        AVCaptureDevice.default(for: .video).zo
     }
 }
