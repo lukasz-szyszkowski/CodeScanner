@@ -396,8 +396,8 @@ public extension CodeScannerView {
                 do {
                     try device.lockForConfiguration()
                     let zoomFactor: CGFloat = 2.0
-                    if zoomFactor <= captureDevice.activeFormat.videoMaxZoomFactor {
-                        captureDevice.videoZoomFactor = zoomFactor
+                    if zoomFactor <= device.activeFormat.videoMaxZoomFactor {
+                        device.videoZoomFactor = zoomFactor
                     } else {
                         print("[CodeScanner] Desired zoom factor is higher than device's maximum zoom.")
                     }
