@@ -20,6 +20,7 @@ public extension CodeScannerView {
         var didFinishScanning = false
         var lastTime = Date(timeIntervalSince1970: 0)
         private let showViewfinder: Bool
+        private let zoomFactor: CGFloat
 
         private var isGalleryShowing: Bool = false {
             didSet {
@@ -30,14 +31,16 @@ public extension CodeScannerView {
             }
         }
 
-        public init(showViewfinder _: Bool = false, parentView: CodeScannerView) {
+        public init(showViewfinder _: Bool = false, parentView: CodeScannerView, zoomFactor: CGFloat = 1.0) {
             self.parentView = parentView
             showViewfinder = true
+            self.zoomFactor = zoomFactor
             super.init(nibName: nil, bundle: nil)
         }
 
         required init?(coder: NSCoder) {
             showViewfinder = false
+            zoomFactor = 1.0
             super.init(coder: coder)
         }
 
@@ -318,6 +321,18 @@ public extension CodeScannerView {
                     return
                 }
 
+                do {
+                    try videoCaptureDevice.lockForConfiguration()
+                    if zoomFactor <= videoCaptureDevice.activeFormat.videoMaxZoomFactor {
+                        videoCaptureDevice.videoZoomFactor = zoomFactor
+                    } else {
+                        print("Desired zoom factor is higher than device's maximum zoom.")
+                    }
+                    
+                } catch {
+                    print(error)
+                }
+                
                 let videoInput: AVCaptureDeviceInput
 
                 do {
@@ -395,12 +410,7 @@ public extension CodeScannerView {
 
                 do {
                     try device.lockForConfiguration()
-                    let zoomFactor: CGFloat = 2.0
-                    if zoomFactor <= device.activeFormat.videoMaxZoomFactor {
-                        device.videoZoomFactor = zoomFactor
-                    } else {
-                        print("[CodeScanner] Desired zoom factor is higher than device's maximum zoom.")
-                    }
+                    
                 } catch {
                     return
                 }

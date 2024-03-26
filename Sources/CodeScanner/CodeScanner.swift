@@ -73,7 +73,9 @@ public struct CodeScannerView: UIViewControllerRepresentable {
     public var isTorchOn: Bool
     public var isGalleryPresented: Binding<Bool>
     public var videoCaptureDevice: AVCaptureDevice?
+    public var zoomFactor: CGFloat
     public var completion: (Result<ScanResult, ScanError>) -> Void
+    
 
     public init(
         codeTypes: [AVMetadataObject.ObjectType],
@@ -86,6 +88,7 @@ public struct CodeScannerView: UIViewControllerRepresentable {
         isTorchOn: Bool = false,
         isGalleryPresented: Binding<Bool> = .constant(false),
         videoCaptureDevice: AVCaptureDevice? = AVCaptureDevice.bestForVideo,
+        zoomFactor: CGFloat = 1.0,
         completion: @escaping (Result<ScanResult, ScanError>) -> Void
     ) {
         self.codeTypes = codeTypes
@@ -98,11 +101,12 @@ public struct CodeScannerView: UIViewControllerRepresentable {
         self.isTorchOn = isTorchOn
         self.isGalleryPresented = isGalleryPresented
         self.videoCaptureDevice = videoCaptureDevice
+        self.zoomFactor = zoomFactor
         self.completion = completion
     }
 
     public func makeUIViewController(context _: Context) -> ScannerViewController {
-        return ScannerViewController(showViewfinder: showViewfinder, parentView: self)
+        return ScannerViewController(showViewfinder: showViewfinder, parentView: self, zoomFactor: zoomFactor)
     }
 
     public func updateUIViewController(_ uiViewController: ScannerViewController, context _: Context) {
@@ -116,11 +120,3 @@ public struct CodeScannerView: UIViewControllerRepresentable {
     }
 }
 
-@available(macCatalyst 14.0, *)
-struct CodeScannerView_Previews: PreviewProvider {
-    static var previews: some View {
-        CodeScannerView(codeTypes: [.qr]) { _ in
-            // do nothing
-        }
-    }
-}
